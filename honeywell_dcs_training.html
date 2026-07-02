@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Honeywell DCS Training — Experion PKS Configuration Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #C8102E;
+    --red-dark: #8B0A1F;
+    --red-glow: rgba(200,16,46,0.18);
+    --gold: #E8B84B;
+    --gold-dim: rgba(232,184,75,0.15);
+    --bg: #0A0C10;
+    --bg2: #0F1117;
+    --bg3: #141820;
+    --panel: #161B24;
+    --panel2: #1C222E;
+    --border: rgba(255,255,255,0.07);
+    --border-red: rgba(200,16,46,0.35);
+    --text: #E8EAF0;
+    --muted: #7A8396;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+    --display: 'Rajdhani', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ── SCANLINE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 3rem;
+    height: 64px;
+    background: rgba(10,12,16,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+  .nav-logo-mark {
+    width: 36px; height: 36px;
+    background: var(--red);
+    display: grid;
+    place-items: center;
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    clip-path: polygon(0 0, 90% 0, 100% 10%, 100% 100%, 10% 100%, 0 90%);
+  }
+  .nav-logo-text {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+  .nav-logo-text span { color: var(--red); }
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--red); }
+  .nav-cta {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    clip-path: polygon(0 0, 92% 0, 100% 8px, 100% 100%, 8% 100%, 0 calc(100% - 8px));
+    transition: background 0.2s;
+  }
+  .nav-cta:hover { background: var(--red-dark); }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 8rem 3rem 4rem;
+    overflow: hidden;
+  }
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(200,16,46,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,16,46,0.06) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridDrift 20s linear infinite;
+  }
+  @keyframes gridDrift {
+    0% { background-position: 0 0; }
+    100% { background-position: 60px 60px; }
+  }
+  .hero-glow {
+    position: absolute;
+    top: -10%;
+    left: -5%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(200,16,46,0.12) 0%, transparent 70%);
+    animation: pulseGlow 4s ease-in-out infinite alternate;
+  }
+  .hero-glow2 {
+    position: absolute;
+    bottom: -10%;
+    right: -5%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(232,184,75,0.06) 0%, transparent 70%);
+  }
+  @keyframes pulseGlow {
+    0% { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.05); }
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 760px;
+  }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--red);
+    border: 1px solid var(--border-red);
+    padding: 5px 14px;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: blink 1.2s ease infinite;
+  }
+  @keyframes blink { 0%,100% {opacity:1} 50% {opacity:0.2} }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero h1 {
+    font-family: var(--display);
+    font-size: clamp(42px, 6vw, 76px);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: 1px;
+    margin-bottom: 1.2rem;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+  .hero h1 .accent { color: var(--red); }
+  .hero h1 .gold { color: var(--gold); }
+  .hero-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    animation: fadeUp 0.7s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--red);
+    color: #fff;
+    border: none;
+    padding: 14px 32px;
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    clip-path: polygon(0 0, 94% 0, 100% 12px, 100% 100%, 6% 100%, 0 calc(100% - 12px));
+    transition: background 0.2s, transform 0.15s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--red-dark); transform: translateY(-1px); }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 14px 32px;
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-outline:hover { border-color: var(--red); color: var(--red); }
+
+  .hero-stats {
+    display: flex;
+    gap: 3rem;
+    margin-top: 4rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--border);
+    animation: fadeUp 0.7s 0.4s ease both;
+  }
+  .stat-item { }
+  .stat-num {
+    font-family: var(--display);
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--red);
+    line-height: 1;
+  }
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Hero right panel */
+  .hero-panel {
+    position: absolute;
+    right: 3rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 360px;
+    background: var(--panel);
+    border: 1px solid var(--border-red);
+    padding: 1.5rem;
+    animation: fadeUp 0.8s 0.5s ease both;
+  }
+  .hero-panel::before {
+    content: 'SYSTEM STATUS';
+    display: block;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--red);
+    margin-bottom: 1rem;
+  }
+  .sys-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .sys-row:last-child { border-bottom: none; }
+  .sys-label { color: var(--muted); }
+  .sys-val { color: var(--text); }
+  .sys-ok { color: #3ECF8E; }
+  .sys-warn { color: var(--gold); }
+
+  /* ── SECTION COMMONS ── */
+  section { padding: 6rem 3rem; }
+  .section-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+  }
+  .section-sub {
+    color: var(--muted);
+    max-width: 540px;
+    margin-bottom: 3rem;
+    font-size: 15px;
+  }
+
+  /* ── MODULES ── */
+  #modules { background: var(--bg2); }
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5px;
+    background: var(--border);
+  }
+  .module-card {
+    background: var(--panel);
+    padding: 2rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .module-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 2px;
+    width: 0;
+    background: var(--red);
+    transition: width 0.3s;
+  }
+  .module-card:hover { background: var(--panel2); }
+  .module-card:hover::after { width: 100%; }
+  .module-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--red);
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+  }
+  .module-title {
+    font-family: var(--display);
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+    line-height: 1.2;
+  }
+  .module-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .module-meta {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.2rem;
+    flex-wrap: wrap;
+  }
+  .module-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .module-badge.red { border-color: var(--border-red); color: var(--red); }
+
+  /* ── VIDEO SECTION ── */
+  #videos { background: var(--bg); }
+  .videos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  .video-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+  }
+  .video-card:hover { border-color: var(--border-red); transform: translateY(-3px); }
+  .video-thumb {
+    position: relative;
+    background: var(--bg3);
+    height: 190px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Animated circuit/waveform inside video thumb */
+  .video-anim {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .video-anim svg { width: 100%; height: 100%; }
+  .anim-line { stroke-dasharray: 300; animation: dash 3s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -300; } }
+  .anim-pulse { animation: svgPulse 2s ease-in-out infinite alternate; }
+  @keyframes svgPulse { from { opacity: 0.4; } to { opacity: 1; } }
+  .play-btn {
+    position: absolute;
+    z-index: 2;
+    width: 52px; height: 52px;
+    background: var(--red);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 0 8px rgba(200,16,46,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .video-card:hover .play-btn {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 14px rgba(200,16,46,0.1);
+  }
+  .play-btn svg { margin-left: 3px; }
+  .video-duration {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    font-family: var(--mono);
+    font-size: 11px;
+    background: rgba(0,0,0,0.7);
+    padding: 2px 8px;
+    color: #fff;
+  }
+  .video-info { padding: 1.25rem; }
+  .video-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .video-title {
+    font-family: var(--display);
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .video-desc { font-size: 12px; color: var(--muted); }
+  .video-meta {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--panel);
+    border: 1px solid var(--border-red);
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .modal-title { font-family: var(--display); font-size: 20px; font-weight: 600; }
+  .modal-close {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 30px; height: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .modal-close:hover { border-color: var(--red); color: var(--red); }
+  .modal-body { padding: 1.5rem; }
+  .modal-video {
+    background: var(--bg);
+    height: 260px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .modal-video-anim { position: absolute; inset: 0; }
+  .modal-video-label {
+    position: relative;
+    z-index: 2;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .modal-chapters { margin-top: 1rem; }
+  .chapter-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    font-size: 13px;
+  }
+  .chapter-num { font-family: var(--mono); color: var(--red); font-size: 11px; min-width: 28px; }
+  .chapter-title { flex: 1; }
+  .chapter-time { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+
+  /* ── CONFIG STUDIO ── */
+  #config { background: var(--bg2); }
+  .config-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  @media(max-width: 800px) { .config-layout { grid-template-columns: 1fr; } }
+  .config-steps { display: flex; flex-direction: column; gap: 0; }
+  .config-step {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: padding-left 0.2s;
+  }
+  .config-step:hover { padding-left: 6px; }
+  .config-step:last-child { border-bottom: none; }
+  .step-num {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--red);
+    min-width: 28px;
+    padding-top: 3px;
+  }
+  .step-content { }
+  .step-title {
+    font-family: var(--display);
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .step-desc { font-size: 13px; color: var(--muted); }
+  .config-visual {
+    background: var(--panel);
+    border: 1px solid var(--border-red);
+    padding: 1.5rem;
+    position: sticky;
+    top: 80px;
+  }
+  .config-visual-header {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--red);
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+  .config-screen {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text);
+    min-height: 320px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cs-toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .cs-btn {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 10px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+  }
+  .cs-btn.active { border-color: var(--red); color: var(--red); }
+  .cs-tree { }
+  .cs-node {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 0;
+    color: var(--muted);
+    font-size: 11px;
+  }
+  .cs-node.expanded { color: var(--text); }
+  .cs-node.selected { color: var(--gold); }
+  .cs-node::before {
+    content: '▶';
+    font-size: 8px;
+    opacity: 0.4;
+    transition: transform 0.2s;
+  }
+  .cs-node.expanded::before { transform: rotate(90deg); opacity: 0.8; }
+  .cs-node-indent { padding-left: 20px; }
+  .cs-node-indent2 { padding-left: 40px; }
+  .typing-cursor::after {
+    content: '█';
+    animation: cursorBlink 0.8s step-end infinite;
+  }
+  @keyframes cursorBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+  .console-line {
+    font-size: 10px;
+    padding: 2px 0;
+    color: var(--muted);
+  }
+  .console-line.ok { color: #3ECF8E; }
+  .console-line.warn { color: var(--gold); }
+  .console-line.err { color: var(--red); }
+
+  /* ── PPT SECTION ── */
+  #ppt { background: var(--bg); }
+  .ppt-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .ppt-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 1.75rem;
+    position: relative;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .ppt-card::before {
+    content: '';
+    position: absolute;
+    top: -50px; right: -50px;
+    width: 120px; height: 120px;
+    background: radial-gradient(circle, var(--red-glow), transparent 70%);
+    transition: opacity 0.3s;
+    opacity: 0;
+  }
+  .ppt-card:hover { border-color: var(--border-red); transform: translateY(-2px); }
+  .ppt-card:hover::before { opacity: 1; }
+  .ppt-icon {
+    width: 48px; height: 48px;
+    background: var(--red-glow);
+    border: 1px solid var(--border-red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    font-family: var(--display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--red);
+    letter-spacing: 1px;
+  }
+  .ppt-title {
+    font-family: var(--display);
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+  .ppt-desc { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 1.25rem; }
+  .ppt-slides {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.5px;
+  }
+  .ppt-slides span { color: var(--gold); }
+  .ppt-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1px solid var(--border-red);
+    color: var(--red);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .ppt-btn:hover { background: var(--red-glow); }
+  .ppt-btn svg { flex-shrink: 0; }
+
+  /* Slide preview in card */
+  .slide-preview {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    margin-bottom: 1.25rem;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide-inner {
+    position: absolute;
+    inset: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .slide-header-bar {
+    background: var(--red);
+    height: 20px;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+  }
+  .slide-header-text { font-family: var(--mono); font-size: 8px; color: #fff; letter-spacing: 1px; }
+  .slide-content-area {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+  }
+  .slide-col { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .slide-line {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border);
+    animation: shimmer 2s ease-in-out infinite alternate;
+  }
+  @keyframes shimmer {
+    from { opacity: 0.5; }
+    to { opacity: 1; }
+  }
+  .slide-line.accent { background: rgba(200,16,46,0.4); }
+  .slide-box {
+    flex: 1;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+  }
+
+  /* ── TOOLS ── */
+  #tools { background: var(--bg2); }
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .tool-item {
+    background: var(--panel);
+    padding: 1.5rem;
+    transition: background 0.2s;
+  }
+  .tool-item:hover { background: var(--panel2); }
+  .tool-icon {
+    font-size: 24px;
+    margin-bottom: 0.75rem;
+    display: block;
+  }
+  .tool-name {
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .tool-desc { font-size: 12px; color: var(--muted); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 3rem;
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-brand { font-family: var(--display); font-size: 20px; font-weight: 600; }
+  .footer-brand span { color: var(--red); }
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* Scroll reveal */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s, transform 0.6s; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* Progress bar */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: var(--red);
+    z-index: 101;
+    transition: width 0.1s;
+  }
+
+  /* Animated counter */
+  .counter { display: inline-block; }
+
+  /* Tooltip */
+  [data-tip] { position: relative; }
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    padding: 4px 10px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  [data-tip]:hover::after { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="prog"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">HW</div>
+    <div class="nav-logo-text">Experion <span>PKS</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#modules">Modules</a></li>
+    <li><a href="#videos">Videos</a></li>
+    <li><a href="#config">Config Studio</a></li>
+    <li><a href="#ppt">Downloads</a></li>
+    <li><a href="#tools">Tools</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('modules').scrollIntoView({behavior:'smooth'})">Enrol Now</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+
+  <div class="hero-content">
+    <div class="hero-tag">Honeywell Certified Training Program</div>
+    <h1>
+      Experion <span class="accent">PKS</span><br>
+      DCS <span class="gold">Mastery</span><br>
+      Program
+    </h1>
+    <p class="hero-sub">Complete hands-on training in Configuration Studio, C300 controller engineering, FTE networking, alarm management, and HMI design for industrial automation professionals.</p>
+    <div class="hero-actions">
+      <a href="#modules" class="btn-primary">Start Learning</a>
+      <a href="#videos" class="btn-outline">Watch Demo</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <div class="stat-num"><span class="counter" data-target="12">0</span>+</div>
+        <div class="stat-label">Training Modules</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num"><span class="counter" data-target="48">0</span>h</div>
+        <div class="stat-label">Video Content</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num"><span class="counter" data-target="320">0</span>+</div>
+        <div class="stat-label">Engineers Trained</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-panel">
+    <div class="sys-row"><span class="sys-label">Experion PKS Version</span><span class="sys-val">R520.1</span></div>
+    <div class="sys-row"><span class="sys-label">Config Studio</span><span class="sys-ok">● Online</span></div>
+    <div class="sys-row"><span class="sys-label">C300 Controller</span><span class="sys-ok">● Connected</span></div>
+    <div class="sys-row"><span class="sys-label">FTE Network</span><span class="sys-ok">● Redundant</span></div>
+    <div class="sys-row"><span class="sys-label">Server Status</span><span class="sys-ok">● Running</span></div>
+    <div class="sys-row"><span class="sys-label">Active Alarms</span><span class="sys-warn">⚠ 3 Pending</span></div>
+    <div class="sys-row"><span class="sys-label">I/O Health</span><span class="sys-ok">● 100%</span></div>
+    <div class="sys-row"><span class="sys-label">Licence</span><span class="sys-val">EPKS-ENG-PRO</span></div>
+  </div>
+</section>
+
+<!-- MODULES -->
+<section id="modules">
+  <div class="section-tag">// Course Curriculum</div>
+  <div class="section-title">Training Modules</div>
+  <p class="section-sub">A structured, end-to-end curriculum covering the full Experion PKS ecosystem from system architecture to advanced troubleshooting.</p>
+  <div class="modules-grid reveal">
+    <div class="module-card">
+      <div class="module-num">MODULE 01</div>
+      <div class="module-title">DCS Fundamentals & Experion Architecture</div>
+      <div class="module-desc">Journey from traditional process control to modern DCS. Explore Experion PKS HIVE architecture, server-client topology, and system components.</div>
+      <div class="module-meta">
+        <span class="module-badge">8 hrs</span>
+        <span class="module-badge red">Foundation</span>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-num">MODULE 02</div>
+      <div class="module-title">Configuration Studio — Launch & Navigation</div>
+      <div class="module-desc">Open Configuration Studio, understand its tools, explore the Enterprise Model, Assets & Alarm Groups, and learn data load destinations.</div>
+      <div class="module-meta">
+        <span class="module-badge">6 hrs</span>
+        <span class="module-badge red">Core</span>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-num">MODULE 03</div>
+      <div class="module-title">C300 Controller — Hardware & Configuration</div>
+      <div class="module-desc">C300 hardware introduction, CPU & interface module loading, redundancy setup, Series C I/O configuration, and module health diagnostics.</div>
+      <div class="module-meta">
+        <span class="module-badge">10 hrs</span>
+        <span class="module-badge red">Advanced</span>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-num">MODULE 04</div>
+      <div class="module-title">Control Builder & Logic Development</div>
+      <div class="module-desc">Create and deploy control strategies using Control Builder. Develop Analog & Digital I/O logic, PID loops, interlocks, and peer control data.</div>
+      <div class="module-meta">
+        <span class="module-badge">8 hrs</span>
+        <span class="module-badge red">Core</span>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-num">MODULE 05</div>
+      <div class="module-title">Alarm Management & Event Subsystem</div>
+      <div class="module-desc">Configure Alarm Groups, Dynamic Alarm Suppression, Alarm Tracker, and Event summaries. Implement alarm rationalisation best practices.</div>
+      <div class="module-meta">
+        <span class="module-badge">4 hrs</span>
+        <span class="module-badge">Specialist</span>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-num">MODULE 06</div>
+      <div class="module-title">FTE Networking & System Redundancy</div>
+      <div class="module-desc">Plan and configure Fault Tolerant Ethernet. Understand FTE View, network topology, redundancy switchover, and network health monitoring.</div>
+      <div class="module-meta">
+        <span class="module-badge">5 hrs</span>
+        <span class="module-badge red">Advanced</span>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-num">MODULE 07</div>
+      <div class="module-title">HMIWeb Display Design</div>
+      <div class="module-desc">Build operator displays using HMIWeb. Design process graphics, faceplates, trends, and navigation structures for Experion Station.</div>
+      <div class="module-meta">
+        <span class="module-badge">6 hrs</span>
+        <span class="module-badge">Design</span>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-num">MODULE 08</div>
+      <div class="module-title">Integration & Third-Party Communication</div>
+      <div class="module-desc">OPC server connection, Honeywell TPS integration, field device commissioning, and SCADA point configuration with channel setup.</div>
+      <div class="module-meta">
+        <span class="module-badge">4 hrs</span>
+        <span class="module-badge">Integration</span>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-num">MODULE 09</div>
+      <div class="module-title">Backup, Restore & System Maintenance</div>
+      <div class="module-desc">Server and controller backup procedures, ERDB and EMDB management, system restore, licence loading, and preventive maintenance tasks.</div>
+      <div class="module-meta">
+        <span class="module-badge">3 hrs</span>
+        <span class="module-badge">Ops</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VIDEOS -->
+<section id="videos">
+  <div class="section-tag">// Animated Training Videos</div>
+  <div class="section-title">Video Library</div>
+  <p class="section-sub">Step-by-step animated tutorials covering every aspect of Configuration Studio and Experion PKS engineering.</p>
+  <div class="videos-grid reveal">
+
+    <!-- Video 1 -->
+    <div class="video-card" onclick="openModal('v1')">
+      <div class="video-thumb">
+        <div class="video-anim">
+          <svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="190" fill="#0F1117"/>
+            <!-- Grid -->
+            <line x1="0" y1="95" x2="300" y2="95" stroke="rgba(200,16,46,0.15)" stroke-width="1"/>
+            <line x1="150" y1="0" x2="150" y2="190" stroke="rgba(200,16,46,0.1)" stroke-width="1"/>
+            <!-- Animated network nodes -->
+            <circle cx="60" cy="60" r="18" fill="none" stroke="#C8102E" stroke-width="1.5" class="anim-pulse"/>
+            <circle cx="150" cy="95" r="22" fill="none" stroke="#C8102E" stroke-width="2" class="anim-pulse" style="animation-delay:0.3s"/>
+            <circle cx="240" cy="60" r="18" fill="none" stroke="#C8102E" stroke-width="1.5" class="anim-pulse" style="animation-delay:0.6s"/>
+            <circle cx="100" cy="150" r="14" fill="none" stroke="#E8B84B" stroke-width="1.5" class="anim-pulse" style="animation-delay:0.9s"/>
+            <circle cx="200" cy="150" r="14" fill="none" stroke="#E8B84B" stroke-width="1.5" class="anim-pulse" style="animation-delay:1.2s"/>
+            <!-- Lines -->
+            <line x1="60" y1="78" x2="150" y2="73" stroke="rgba(200,16,46,0.5)" stroke-width="1" class="anim-line"/>
+            <line x1="240" y1="78" x2="150" y2="73" stroke="rgba(200,16,46,0.5)" stroke-width="1" class="anim-line" style="animation-delay:1s"/>
+            <line x1="150" y1="117" x2="100" y2="136" stroke="rgba(232,184,75,0.5)" stroke-width="1" class="anim-line" style="animation-delay:0.5s"/>
+            <line x1="150" y1="117" x2="200" y2="136" stroke="rgba(232,184,75,0.5)" stroke-width="1" class="anim-line" style="animation-delay:1.5s"/>
+            <!-- Labels -->
+            <text x="60" y="64" text-anchor="middle" font-family="monospace" font-size="7" fill="#C8102E">SERVER</text>
+            <text x="150" y="99" text-anchor="middle" font-family="monospace" font-size="7" fill="#C8102E">CONFIG</text>
+            <text x="150" y="108" text-anchor="middle" font-family="monospace" font-size="7" fill="#C8102E">STUDIO</text>
+            <text x="240" y="64" text-anchor="middle" font-family="monospace" font-size="7" fill="#C8102E">CLIENT</text>
+            <text x="100" y="154" text-anchor="middle" font-family="monospace" font-size="6" fill="#E8B84B">C300</text>
+            <text x="200" y="154" text-anchor="middle" font-family="monospace" font-size="6" fill="#E8B84B">ERDB</text>
+          </svg>
+        </div>
+        <div class="play-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><polygon points="5,3 15,9 5,15" fill="white"/></svg>
+        </div>
+        <div class="video-duration">32:45</div>
+      </div>
+      <div class="video-info">
+        <div class="video-tag">Module 02 · Configuration Studio</div>
+        <div class="video-title">Launching Configuration Studio & System Overview</div>
+        <div class="video-desc">Learn to open Configuration Studio, navigate its interface, and understand how it connects to the Experion PKS server and ERDB.</div>
+        <div class="video-meta">
+          <span>▶ 32 min</span>
+          <span>◈ 6 chapters</span>
+          <span>⊞ HD</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video 2 -->
+    <div class="video-card" onclick="openModal('v2')">
+      <div class="video-thumb">
+        <div class="video-anim">
+          <svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="190" fill="#0A0C10"/>
+            <!-- Waveform animation -->
+            <polyline points="0,95 20,70 40,120 60,50 80,95 100,80 120,110 140,60 160,95 180,75 200,115 220,55 240,95 260,85 280,105 300,95"
+              fill="none" stroke="#C8102E" stroke-width="2" class="anim-line"/>
+            <polyline points="0,95 20,85 40,100 60,75 80,95 100,88 120,102 140,78 160,95 180,90 200,100 220,82 240,95 260,91 280,98 300,95"
+              fill="none" stroke="rgba(232,184,75,0.5)" stroke-width="1.5" class="anim-line" style="animation-delay:0.5s"/>
+            <!-- I/O blocks -->
+            <rect x="20" y="130" width="50" height="30" fill="none" stroke="rgba(200,16,46,0.4)" stroke-width="1" class="anim-pulse"/>
+            <text x="45" y="148" text-anchor="middle" font-family="monospace" font-size="7" fill="#C8102E">AI-01</text>
+            <rect x="90" y="130" width="50" height="30" fill="none" stroke="rgba(200,16,46,0.4)" stroke-width="1" class="anim-pulse" style="animation-delay:0.4s"/>
+            <text x="115" y="148" text-anchor="middle" font-family="monospace" font-size="7" fill="#C8102E">AO-01</text>
+            <rect x="160" y="130" width="50" height="30" fill="none" stroke="rgba(232,184,75,0.4)" stroke-width="1" class="anim-pulse" style="animation-delay:0.8s"/>
+            <text x="185" y="148" text-anchor="middle" font-family="monospace" font-size="7" fill="#E8B84B">DI-01</text>
+            <rect x="230" y="130" width="50" height="30" fill="none" stroke="rgba(232,184,75,0.4)" stroke-width="1" class="anim-pulse" style="animation-delay:1.2s"/>
+            <text x="255" y="148" text-anchor="middle" font-family="monospace" font-size="7" fill="#E8B84B">DO-01</text>
+            <!-- Value labels -->
+            <text x="20" y="40" font-family="monospace" font-size="9" fill="rgba(200,16,46,0.8)">PV: 72.4%</text>
+            <text x="150" y="40" font-family="monospace" font-size="9" fill="rgba(232,184,75,0.8)">SP: 75.0%</text>
+          </svg>
+        </div>
+        <div class="play-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><polygon points="5,3 15,9 5,15" fill="white"/></svg>
+        </div>
+        <div class="video-duration">45:12</div>
+      </div>
+      <div class="video-info">
+        <div class="video-tag">Module 03 · C300 Controller</div>
+        <div class="video-title">Analog & Digital I/O Configuration with Alarm Setup</div>
+        <div class="video-desc">Configure AI, AO, DI, and DO channels on Series C I/O. Create process alarms, set limits, and assign I/O to controller modules.</div>
+        <div class="video-meta">
+          <span>▶ 45 min</span>
+          <span>◈ 8 chapters</span>
+          <span>⊞ HD</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video 3 -->
+    <div class="video-card" onclick="openModal('v3')">
+      <div class="video-thumb">
+        <div class="video-anim">
+          <svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="190" fill="#0F1117"/>
+            <!-- PID block diagram -->
+            <rect x="20" y="75" width="55" height="40" rx="2" fill="none" stroke="rgba(232,184,75,0.6)" stroke-width="1.5" class="anim-pulse"/>
+            <text x="47" y="98" text-anchor="middle" font-family="monospace" font-size="8" fill="#E8B84B">SETPT</text>
+            <rect x="115" y="65" width="70" height="60" rx="2" fill="none" stroke="#C8102E" stroke-width="2" class="anim-pulse" style="animation-delay:0.3s"/>
+            <text x="150" y="90" text-anchor="middle" font-family="monospace" font-size="10" fill="#C8102E">PID</text>
+            <text x="150" y="103" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(200,16,46,0.7)">CONTROLLER</text>
+            <rect x="225" y="75" width="55" height="40" rx="2" fill="none" stroke="rgba(62,207,142,0.6)" stroke-width="1.5" class="anim-pulse" style="animation-delay:0.6s"/>
+            <text x="252" y="98" text-anchor="middle" font-family="monospace" font-size="8" fill="#3ECF8E">OUTPUT</text>
+            <!-- Arrows -->
+            <line x1="75" y1="95" x2="115" y2="95" stroke="rgba(232,184,75,0.7)" stroke-width="1.5" class="anim-line"/>
+            <polygon points="112,92 118,95 112,98" fill="#E8B84B"/>
+            <line x1="185" y1="95" x2="225" y2="95" stroke="rgba(62,207,142,0.7)" stroke-width="1.5" class="anim-line" style="animation-delay:0.8s"/>
+            <polygon points="222,92 228,95 222,98" fill="#3ECF8E"/>
+            <!-- Feedback loop -->
+            <path d="M 252 115 Q 252 155 150 155 Q 100 155 100 115" fill="none" stroke="rgba(200,16,46,0.4)" stroke-width="1" stroke-dasharray="4,3" class="anim-pulse" style="animation-delay:1s"/>
+            <text x="200" y="170" font-family="monospace" font-size="7" fill="rgba(200,16,46,0.6)">FEEDBACK LOOP</text>
+            <!-- Params -->
+            <text x="120" y="155" font-family="monospace" font-size="7" fill="rgba(200,16,46,0.6)">Kp:1.2 Ki:0.8 Kd:0.05</text>
+          </svg>
+        </div>
+        <div class="play-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><polygon points="5,3 15,9 5,15" fill="white"/></svg>
+        </div>
+        <div class="video-duration">38:20</div>
+      </div>
+      <div class="video-info">
+        <div class="video-tag">Module 04 · Control Builder</div>
+        <div class="video-title">PID Loop & Control Strategy Development</div>
+        <div class="video-desc">Build complete PID control loops using Control Builder. Configure tuning parameters, cascade control, and deploy strategies to the C300.</div>
+        <div class="video-meta">
+          <span>▶ 38 min</span>
+          <span>◈ 7 chapters</span>
+          <span>⊞ HD</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video 4 -->
+    <div class="video-card" onclick="openModal('v4')">
+      <div class="video-thumb">
+        <div class="video-anim">
+          <svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="190" fill="#0A0C10"/>
+            <!-- Alarm list simulation -->
+            <rect x="15" y="15" width="270" height="18" fill="rgba(200,16,46,0.2)" class="anim-pulse"/>
+            <rect x="20" y="18" width="8" height="8" fill="#C8102E" class="anim-pulse"/>
+            <text x="35" y="27" font-family="monospace" font-size="8" fill="#C8102E">HIGH HIGH | PV:98.3% | TANK-101 LEVEL</text>
+            <rect x="15" y="38" width="270" height="18" fill="rgba(232,184,75,0.1)" class="anim-pulse" style="animation-delay:0.4s"/>
+            <rect x="20" y="41" width="8" height="8" fill="#E8B84B" class="anim-pulse" style="animation-delay:0.4s"/>
+            <text x="35" y="50" font-family="monospace" font-size="8" fill="#E8B84B">HIGH | PV:85.1% | REACTOR TEMP</text>
+            <rect x="15" y="61" width="270" height="18" fill="rgba(232,184,75,0.1)" class="anim-pulse" style="animation-delay:0.8s"/>
+            <rect x="20" y="64" width="8" height="8" fill="#E8B84B" class="anim-pulse" style="animation-delay:0.8s"/>
+            <text x="35" y="73" font-family="monospace" font-size="8" fill="#E8B84B">LOW | PV:12.4% | FEED FLOW</text>
+            <rect x="15" y="84" width="270" height="18" fill="rgba(62,207,142,0.07)" class="anim-pulse" style="animation-delay:1.2s"/>
+            <rect x="20" y="87" width="8" height="8" fill="#3ECF8E" class="anim-pulse" style="animation-delay:1.2s"/>
+            <text x="35" y="96" font-family="monospace" font-size="8" fill="#3ECF8E">RETURN | FIC-201 | ACKNOWLEDGED</text>
+            <!-- Trend chart -->
+            <rect x="15" y="115" width="270" height="60" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+            <polyline points="15,155 55,140 95,160 135,130 175,150 215,125 255,145 285,135" fill="none" stroke="#C8102E" stroke-width="1.5" class="anim-line"/>
+            <line x1="15" y1="145" x2="285" y2="145" stroke="rgba(232,184,75,0.3)" stroke-width="1" stroke-dasharray="3,3"/>
+            <text x="220" y="142" font-family="monospace" font-size="7" fill="rgba(232,184,75,0.7)">HIGH LIMIT</text>
+          </svg>
+        </div>
+        <div class="play-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><polygon points="5,3 15,9 5,15" fill="white"/></svg>
+        </div>
+        <div class="video-duration">28:55</div>
+      </div>
+      <div class="video-info">
+        <div class="video-tag">Module 05 · Alarm Management</div>
+        <div class="video-title">Alarm Configuration & Dynamic Suppression</div>
+        <div class="video-desc">Set up alarm groups, configure alarm priorities and limits, implement Dynamic Alarm Suppression, and use the Alarm Tracker effectively.</div>
+        <div class="video-meta">
+          <span>▶ 29 min</span>
+          <span>◈ 5 chapters</span>
+          <span>⊞ HD</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video 5 -->
+    <div class="video-card" onclick="openModal('v5')">
+      <div class="video-thumb">
+        <div class="video-anim">
+          <svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="190" fill="#0F1117"/>
+            <!-- FTE Network topology -->
+            <!-- Switch A -->
+            <rect x="110" y="20" width="80" height="28" rx="2" fill="none" stroke="#C8102E" stroke-width="1.5" class="anim-pulse"/>
+            <text x="150" y="38" text-anchor="middle" font-family="monospace" font-size="8" fill="#C8102E">SWITCH-A (FTE)</text>
+            <!-- Switch B -->
+            <rect x="110" y="75" width="80" height="28" rx="2" fill="none" stroke="#C8102E" stroke-width="1.5" class="anim-pulse" style="animation-delay:0.5s"/>
+            <text x="150" y="93" text-anchor="middle" font-family="monospace" font-size="8" fill="#C8102E">SWITCH-B (FTE)</text>
+            <!-- Devices -->
+            <rect x="15" y="140" width="60" height="25" rx="1" fill="none" stroke="rgba(232,184,75,0.6)" stroke-width="1" class="anim-pulse" style="animation-delay:0.3s"/>
+            <text x="45" y="155" text-anchor="middle" font-family="monospace" font-size="7" fill="#E8B84B">C300 CTRL</text>
+            <rect x="90" y="140" width="60" height="25" rx="1" fill="none" stroke="rgba(232,184,75,0.6)" stroke-width="1" class="anim-pulse" style="animation-delay:0.7s"/>
+            <text x="120" y="155" text-anchor="middle" font-family="monospace" font-size="7" fill="#E8B84B">EPKS SRV</text>
+            <rect x="165" y="140" width="60" height="25" rx="1" fill="none" stroke="rgba(232,184,75,0.6)" stroke-width="1" class="anim-pulse" style="animation-delay:1.1s"/>
+            <text x="195" y="155" text-anchor="middle" font-family="monospace" font-size="7" fill="#E8B84B">STATION</text>
+            <rect x="240" y="140" width="45" height="25" rx="1" fill="none" stroke="rgba(62,207,142,0.5)" stroke-width="1" class="anim-pulse" style="animation-delay:1.5s"/>
+            <text x="262" y="155" text-anchor="middle" font-family="monospace" font-size="7" fill="#3ECF8E">CONFIG</text>
+            <!-- Connection lines -->
+            <line x1="45" y1="140" x2="120" y2="48" stroke="rgba(200,16,46,0.4)" stroke-width="1" class="anim-line"/>
+            <line x1="120" y1="140" x2="145" y2="48" stroke="rgba(200,16,46,0.4)" stroke-width="1" class="anim-line" style="animation-delay:0.3s"/>
+            <line x1="195" y1="140" x2="165" y2="48" stroke="rgba(200,16,46,0.4)" stroke-width="1" class="anim-line" style="animation-delay:0.6s"/>
+            <line x1="262" y1="140" x2="185" y2="48" stroke="rgba(62,207,142,0.3)" stroke-width="1" class="anim-line" style="animation-delay:0.9s"/>
+            <!-- redundant links -->
+            <line x1="150" y1="48" x2="150" y2="75" stroke="rgba(200,16,46,0.6)" stroke-width="2" class="anim-pulse"/>
+            <text x="158" y="66" font-family="monospace" font-size="6" fill="rgba(200,16,46,0.7)">RDNT</text>
+          </svg>
+        </div>
+        <div class="play-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><polygon points="5,3 15,9 5,15" fill="white"/></svg>
+        </div>
+        <div class="video-duration">41:30</div>
+      </div>
+      <div class="video-info">
+        <div class="video-tag">Module 06 · FTE Networking</div>
+        <div class="video-title">FTE Network Design & Redundancy Configuration</div>
+        <div class="video-desc">Plan and configure Fault Tolerant Ethernet with dual-switch topology. Configure redundant links, visualise health with FTE View, and test failover.</div>
+        <div class="video-meta">
+          <span>▶ 41 min</span>
+          <span>◈ 7 chapters</span>
+          <span>⊞ HD</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video 6 -->
+    <div class="video-card" onclick="openModal('v6')">
+      <div class="video-thumb">
+        <div class="video-anim">
+          <svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg">
+            <rect width="300" height="190" fill="#0A0C10"/>
+            <!-- HMI display mockup -->
+            <rect x="10" y="10" width="280" height="170" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+            <!-- Header bar -->
+            <rect x="10" y="10" width="280" height="20" fill="rgba(200,16,46,0.2)"/>
+            <text x="20" y="24" font-family="monospace" font-size="8" fill="#C8102E">● OVERVIEW DISPLAY — UNIT 100</text>
+            <!-- Tank -->
+            <rect x="30" y="45" width="35" height="60" rx="2" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+            <rect x="30" y="85" width="35" height="20" rx="2" fill="rgba(200,16,46,0.3)" class="anim-pulse"/>
+            <text x="47" y="120" text-anchor="middle" font-family="monospace" font-size="7" fill="#fff">TK-101</text>
+            <text x="47" y="130" text-anchor="middle" font-family="monospace" font-size="7" fill="#C8102E">33%</text>
+            <!-- Pipe -->
+            <line x1="65" y1="80" x2="100" y2="80" stroke="rgba(255,255,255,0.3)" stroke-width="4"/>
+            <!-- Valve -->
+            <polygon points="100,75 110,80 100,85" fill="rgba(232,184,75,0.8)"/>
+            <polygon points="120,75 110,80 120,85" fill="rgba(232,184,75,0.8)"/>
+            <!-- Reactor -->
+            <ellipse cx="145" cy="90" rx="30" ry="40" fill="none" stroke="rgba(200,16,46,0.5)" stroke-width="1.5" class="anim-pulse" style="animation-delay:0.5s"/>
+            <text x="145" y="86" text-anchor="middle" font-family="monospace" font-size="7" fill="#C8102E">RCTR</text>
+            <text x="145" y="96" text-anchor="middle" font-family="monospace" font-size="7" fill="#C8102E">201</text>
+            <text x="145" y="106" text-anchor="middle" font-family="monospace" font-size="7" fill="#3ECF8E">85.1°C</text>
+            <!-- Trend small -->
+            <rect x="190" y="45" width="90" height="50" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="1"/>
+            <polyline points="195,80 205,70 215,75 225,65 235,72 245,60 255,68 265,63 275,70" fill="none" stroke="#C8102E" stroke-width="1.5" class="anim-line"/>
+            <text x="235" y="105" text-anchor="middle" font-family="monospace" font-size="7" fill="rgba(255,255,255,0.4)">TREND: REACTOR TEMP</text>
+          </svg>
+        </div>
+        <div class="play-btn">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><polygon points="5,3 15,9 5,15" fill="white"/></svg>
+        </div>
+        <div class="video-duration">52:10</div>
+      </div>
+      <div class="video-info">
+        <div class="video-tag">Module 07 · HMIWeb Design</div>
+        <div class="video-title">Building Process Graphics & Operator Displays</div>
+        <div class="video-desc">Design professional HMIWeb displays for Experion Station. Create process graphics, trend displays, faceplate navigation, and alarm summaries.</div>
+        <div class="video-meta">
+          <span>▶ 52 min</span>
+          <span>◈ 9 chapters</span>
+          <span>⊞ HD</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CONFIG STUDIO STEPS -->
+<section id="config">
+  <div class="section-tag">// Step-by-Step Guide</div>
+  <div class="section-title">Configuration Studio Walkthrough</div>
+  <p class="section-sub">From launch to full server configuration — every step documented and visualised.</p>
+  <div class="config-layout reveal">
+    <div class="config-steps">
+      <div class="config-step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <div class="step-title">Launch Configuration Studio</div>
+          <div class="step-desc">Navigate to Start → All Programs → Honeywell Experion PKS → Configuration Studio. It can be run locally or remotely from any client.</div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <div class="step-title">Connect to Experion Server</div>
+          <div class="step-desc">Enter the server name or IP address. Configuration Studio connects to the ERDB (Experion Relational Database) via the FTE network.</div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <div class="step-title">Explore the Enterprise Model</div>
+          <div class="step-desc">Set up the Asset hierarchy in the Enterprise Model Builder. Define Areas, Units, and Equipment with alarm groups and data paths.</div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <div class="step-title">Configure Flex, Console & Extension Stations</div>
+          <div class="step-desc">Add and configure Experion Station types — Console, Console Extension, Flex, and Report printers — with appropriate settings.</div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">05</div>
+        <div class="step-content">
+          <div class="step-title">Add Controllers & I/O Modules</div>
+          <div class="step-desc">Insert the C300 controller in Control Builder, load CPU and interface modules, assign Series C I/O chassis and channel addresses.</div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">06</div>
+        <div class="step-content">
+          <div class="step-title">Create SCADA Points & Algorithms</div>
+          <div class="step-desc">Define SCADA channels and points with appropriate engineering units, alarm limits, scaling, and SCADA Point Algorithms.</div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">07</div>
+        <div class="step-content">
+          <div class="step-title">Load & Validate Configuration</div>
+          <div class="step-desc">Perform a data load to the ERDB and to target controllers. Validate the configuration, monitor load progress, and resolve any errors.</div>
+        </div>
+      </div>
+      <div class="config-step">
+        <div class="step-num">08</div>
+        <div class="step-content">
+          <div class="step-title">Verify on Experion Station</div>
+          <div class="step-desc">Confirm assets, points, alarms, and trends appear correctly on the operator station. Perform a live I/O check and alarm verification.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="config-visual">
+      <div class="config-visual-header">Configuration Studio — Live View</div>
+      <div class="config-screen">
+        <div class="cs-toolbar">
+          <button class="cs-btn active">File</button>
+          <button class="cs-btn">View</button>
+          <button class="cs-btn">Tools</button>
+          <button class="cs-btn">Server</button>
+          <button class="cs-btn">Help</button>
+        </div>
+        <div class="cs-tree" id="csTree">
+          <div class="cs-node expanded">Experion Server: EXP-SRV-01</div>
+          <div class="cs-node-indent">
+            <div class="cs-node expanded">Enterprise Model</div>
+            <div class="cs-node-indent">
+              <div class="cs-node expanded">Area: UNIT-100</div>
+              <div class="cs-node-indent">
+                <div class="cs-node selected">Unit: REACTOR-201</div>
+                <div class="cs-node-indent2 cs-node">Equipment: TK-101</div>
+                <div class="cs-node-indent2 cs-node">Equipment: PMP-102</div>
+              </div>
+            </div>
+          </div>
+          <div class="cs-node-indent">
+            <div class="cs-node expanded">Stations</div>
+            <div class="cs-node-indent">
+              <div class="cs-node">CONSOLE-01 (Console)</div>
+              <div class="cs-node">STATION-02 (Flex)</div>
+            </div>
+          </div>
+          <div class="cs-node-indent">
+            <div class="cs-node expanded">Controllers</div>
+            <div class="cs-node-indent">
+              <div class="cs-node">C300-001 [ONLINE]</div>
+              <div class="cs-node">C300-002 [STDBY]</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem;">
+          <div class="console-line ok">[10:24:31] Config Studio connected to EXP-SRV-01</div>
+          <div class="console-line">[10:24:32] Loading Enterprise Model...</div>
+          <div class="console-line ok">[10:24:33] 3 Areas | 7 Units | 24 Equipment loaded</div>
+          <div class="console-line warn">[10:24:34] Warning: C300-002 redundancy sync pending</div>
+          <div class="console-line ok">[10:24:35] 128 SCADA points configured</div>
+          <div class="console-line typing-cursor">[10:24:36] Ready</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PPT DOWNLOADS -->
+<section id="ppt">
+  <div class="section-tag">// Downloadable Resources</div>
+  <div class="section-title">Presentation Decks & Materials</div>
+  <p class="section-sub">Professionally structured PowerPoint decks for every module — ready for classroom or self-study use.</p>
+  <div class="ppt-grid reveal">
+
+    <div class="ppt-card" onclick="downloadPPT('intro')">
+      <div class="ppt-icon">PPT</div>
+      <div class="slide-preview">
+        <div class="slide-inner">
+          <div class="slide-header-bar"><span class="slide-header-text">DCS FUNDAMENTALS — INTRO DECK</span></div>
+          <div class="slide-content-area">
+            <div class="slide-col">
+              <div class="slide-line accent" style="width:70%"></div>
+              <div class="slide-line" style="width:90%"></div>
+              <div class="slide-line" style="width:60%"></div>
+              <div class="slide-line" style="width:80%"></div>
+              <div class="slide-line" style="width:50%"></div>
+            </div>
+            <div class="slide-box"></div>
+          </div>
+        </div>
+      </div>
+      <div class="ppt-title">DCS Fundamentals & Experion Architecture</div>
+      <div class="ppt-desc">Covers DCS evolution, Experion PKS HIVE architecture, server-client topology, and key system components.</div>
+      <div class="ppt-slides">Slides: <span>42</span> · Mod 01</div>
+      <button class="ppt-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v9M3 7l4 4 4-4M1 11h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download PPT
+      </button>
+    </div>
+
+    <div class="ppt-card" onclick="downloadPPT('config')">
+      <div class="ppt-icon">PPT</div>
+      <div class="slide-preview">
+        <div class="slide-inner">
+          <div class="slide-header-bar"><span class="slide-header-text">CONFIGURATION STUDIO GUIDE</span></div>
+          <div class="slide-content-area">
+            <div class="slide-col">
+              <div class="slide-line accent" style="width:80%"></div>
+              <div class="slide-line" style="width:100%"></div>
+              <div class="slide-line" style="width:65%"></div>
+              <div class="slide-line" style="width:85%"></div>
+            </div>
+            <div class="slide-col">
+              <div class="slide-line" style="width:75%"></div>
+              <div class="slide-line accent" style="width:50%"></div>
+              <div class="slide-line" style="width:90%"></div>
+              <div class="slide-line" style="width:60%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ppt-title">Configuration Studio — Complete Guide</div>
+      <div class="ppt-desc">Launch procedure, Enterprise Model, Stations, Controllers, SCADA points, data load destinations, and validation steps.</div>
+      <div class="ppt-slides">Slides: <span>58</span> · Mod 02</div>
+      <button class="ppt-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v9M3 7l4 4 4-4M1 11h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download PPT
+      </button>
+    </div>
+
+    <div class="ppt-card" onclick="downloadPPT('c300')">
+      <div class="ppt-icon">PPT</div>
+      <div class="slide-preview">
+        <div class="slide-inner">
+          <div class="slide-header-bar"><span class="slide-header-text">C300 CONTROLLER ENGINEERING</span></div>
+          <div class="slide-content-area">
+            <div class="slide-box" style="flex:0.8"></div>
+            <div class="slide-col">
+              <div class="slide-line accent" style="width:60%"></div>
+              <div class="slide-line" style="width:100%"></div>
+              <div class="slide-line" style="width:75%"></div>
+              <div class="slide-line" style="width:85%"></div>
+              <div class="slide-line" style="width:55%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ppt-title">C300 Controller Hardware & Configuration</div>
+      <div class="ppt-desc">C300 hardware overview, CPU and interface modules, Series C I/O, redundancy, and module health diagnostics.</div>
+      <div class="ppt-slides">Slides: <span>65</span> · Mod 03</div>
+      <button class="ppt-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v9M3 7l4 4 4-4M1 11h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download PPT
+      </button>
+    </div>
+
+    <div class="ppt-card" onclick="downloadPPT('alarm')">
+      <div class="ppt-icon">PPT</div>
+      <div class="slide-preview">
+        <div class="slide-inner">
+          <div class="slide-header-bar"><span class="slide-header-text">ALARM MANAGEMENT</span></div>
+          <div class="slide-content-area">
+            <div class="slide-col">
+              <div class="slide-line accent" style="width:100%"></div>
+              <div class="slide-line accent" style="width:85%; opacity:0.6"></div>
+              <div class="slide-line" style="width:70%"></div>
+              <div class="slide-line" style="width:90%"></div>
+              <div class="slide-line" style="width:60%"></div>
+              <div class="slide-line" style="width:80%"></div>
+            </div>
+            <div class="slide-box" style="flex:0.6"></div>
+          </div>
+        </div>
+      </div>
+      <div class="ppt-title">Alarm Management & Event Subsystem</div>
+      <div class="ppt-desc">Alarm rationalisation, group configuration, Dynamic Alarm Suppression, Alarm Tracker, and event summary management.</div>
+      <div class="ppt-slides">Slides: <span>38</span> · Mod 05</div>
+      <button class="ppt-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v9M3 7l4 4 4-4M1 11h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download PPT
+      </button>
+    </div>
+
+    <div class="ppt-card" onclick="downloadPPT('fte')">
+      <div class="ppt-icon">PPT</div>
+      <div class="slide-preview">
+        <div class="slide-inner">
+          <div class="slide-header-bar"><span class="slide-header-text">FTE NETWORKING & REDUNDANCY</span></div>
+          <div class="slide-content-area">
+            <div class="slide-col">
+              <div class="slide-line" style="width:80%"></div>
+              <div class="slide-line accent" style="width:65%"></div>
+              <div class="slide-line" style="width:100%"></div>
+              <div class="slide-line" style="width:55%"></div>
+            </div>
+            <div class="slide-col">
+              <div class="slide-line accent" style="width:90%"></div>
+              <div class="slide-line" style="width:70%"></div>
+              <div class="slide-line" style="width:85%"></div>
+              <div class="slide-line" style="width:50%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ppt-title">FTE Networking & System Redundancy</div>
+      <div class="ppt-desc">FTE architecture, dual-switch topology, redundancy configuration, FTE View health monitoring, and failover testing procedures.</div>
+      <div class="ppt-slides">Slides: <span>44</span> · Mod 06</div>
+      <button class="ppt-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v9M3 7l4 4 4-4M1 11h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download PPT
+      </button>
+    </div>
+
+    <div class="ppt-card" onclick="downloadPPT('hmi')">
+      <div class="ppt-icon">PPT</div>
+      <div class="slide-preview">
+        <div class="slide-inner">
+          <div class="slide-header-bar"><span class="slide-header-text">HMIWEB DISPLAY DESIGN</span></div>
+          <div class="slide-content-area">
+            <div class="slide-box"></div>
+            <div class="slide-col" style="flex:0.7">
+              <div class="slide-line accent" style="width:100%"></div>
+              <div class="slide-line" style="width:80%"></div>
+              <div class="slide-line" style="width:60%"></div>
+              <div class="slide-line" style="width:90%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ppt-title">HMIWeb Display Design & Best Practices</div>
+      <div class="ppt-desc">Display design principles, graphic building guidelines, faceplate design, trend configuration, and navigation structure for Experion Station.</div>
+      <div class="ppt-slides">Slides: <span>52</span> · Mod 07</div>
+      <button class="ppt-btn">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v9M3 7l4 4 4-4M1 11h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Download PPT
+      </button>
+    </div>
+
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools">
+  <div class="section-tag">// Engineering Toolkit</div>
+  <div class="section-title">Configuration Studio Tools</div>
+  <p class="section-sub">Core tools available within Configuration Studio, each with a specific configuration scope and data load destination.</p>
+  <div class="tools-grid reveal">
+    <div class="tool-item">
+      <span class="tool-icon" style="color: var(--red)">⬡</span>
+      <div class="tool-name">Control Builder</div>
+      <div class="tool-desc">Create and deploy control strategies, function blocks, and C300 controller configurations.</div>
+    </div>
+    <div class="tool-item">
+      <span class="tool-icon" style="color: var(--gold)">◈</span>
+      <div class="tool-name">Enterprise Model Builder</div>
+      <div class="tool-desc">Define the asset hierarchy — Areas, Units, Equipment, and Alarm Groups for the entire plant.</div>
+    </div>
+    <div class="tool-item">
+      <span class="tool-icon" style="color: #3ECF8E">⊞</span>
+      <div class="tool-name">Server Configuration</div>
+      <div class="tool-desc">Configure Experion PKS Server settings, station types, OPC connections, and integration parameters.</div>
+    </div>
+    <div class="tool-item">
+      <span class="tool-icon" style="color: var(--red)">⚡</span>
+      <div class="tool-name">FTE View</div>
+      <div class="tool-desc">Visual FTE network topology viewer with real-time fault highlighting and link health status.</div>
+    </div>
+    <div class="tool-item">
+      <span class="tool-icon" style="color: var(--gold)">◉</span>
+      <div class="tool-name">Alarm & Event Summary</div>
+      <div class="tool-desc">Configure alarm priority definitions, event journaling, and Alarm Tracker for historical analysis.</div>
+    </div>
+    <div class="tool-item">
+      <span class="tool-icon" style="color: #3ECF8E">▦</span>
+      <div class="tool-name">SCADA Point Manager</div>
+      <div class="tool-desc">Define SCADA channels, points, engineering units, scaling, and SCADA Point Algorithms.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-brand">Experion <span>PKS</span> Training</div>
+    <div style="font-size:13px; color: var(--muted); margin-top: 4px;">Honeywell DCS Configuration Studio Certification Program</div>
+  </div>
+  <div class="footer-copy">
+    © 2026 Honeywell DCS Training Portal · For educational use only<br>
+    Experion PKS is a registered trademark of Honeywell International Inc.
+  </div>
+</footer>
+
+<!-- VIDEO MODAL -->
+<div class="modal-overlay" id="videoModal" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle">Video Title</div>
+        <div style="font-size:12px; color: var(--muted); margin-top:3px; font-family: var(--mono)" id="modalTag">Module</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('videoModal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-video">
+        <div class="modal-video-anim">
+          <svg width="100%" height="100%" viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+            <rect width="700" height="260" fill="#0A0C10"/>
+            <line x1="0" y1="130" x2="700" y2="130" stroke="rgba(200,16,46,0.08)" stroke-width="1"/>
+            <polyline id="modalWave" points="" fill="none" stroke="#C8102E" stroke-width="1.5"/>
+          </svg>
+        </div>
+        <div class="modal-video-label">
+          <div style="font-size:14px; color: var(--muted); margin-bottom:8px">▶ Video Player</div>
+          <div style="font-size:11px; color: rgba(200,16,46,0.7); font-family: var(--mono)">Connect to Honeywell Training Portal to stream</div>
+        </div>
+      </div>
+      <div class="modal-chapters" id="modalChapters"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Progress bar
+window.addEventListener('scroll', () => {
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  document.getElementById('prog').style.width = (window.scrollY / h * 100) + '%';
+});
+
+// Reveal on scroll
+const reveals = document.querySelectorAll('.reveal');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.1 });
+reveals.forEach(r => observer.observe(r));
+
+// Animated counters
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target);
+  const step = Math.ceil(target / 40);
+  let cur = 0;
+  const timer = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    el.textContent = cur;
+    if (cur >= target) clearInterval(timer);
+  }, 30);
+}
+const counterObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.counter').forEach(animateCounter);
+      counterObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.3 });
+counterObs.observe(document.querySelector('.hero-stats'));
+
+// Video data
+const videos = {
+  v1: {
+    title: 'Launching Configuration Studio & System Overview',
+    tag: 'Module 02 · Configuration Studio · 32 min',
+    chapters: [
+      { n:'01', t:'What is Configuration Studio?', d:'04:20' },
+      { n:'02', t:'Launching from Start Menu', d:'02:15' },
+      { n:'03', t:'Connecting to the Experion Server', d:'05:40' },
+      { n:'04', t:'Configuration Studio tools overview', d:'06:30' },
+      { n:'05', t:'Understanding data load destinations', d:'07:10' },
+      { n:'06', t:'Multi-server configuration topology', d:'06:50' },
+    ]
+  },
+  v2: {
+    title: 'Analog & Digital I/O Configuration with Alarm Setup',
+    tag: 'Module 03 · C300 Controller · 45 min',
+    chapters: [
+      { n:'01', t:'Series C I/O module overview', d:'04:00' },
+      { n:'02', t:'Adding AI and AO channels', d:'06:30' },
+      { n:'03', t:'Adding DI and DO channels', d:'05:20' },
+      { n:'04', t:'Channel engineering units & scaling', d:'05:50' },
+      { n:'05', t:'Creating alarms for DI and DO', d:'07:00' },
+      { n:'06', t:'Analog alarm limit configuration', d:'09:10' },
+      { n:'07', t:'Loading I/O configuration to C300', d:'04:40' },
+      { n:'08', t:'Live I/O verification on Station', d:'02:30' },
+    ]
+  },
+  v3: {
+    title: 'PID Loop & Control Strategy Development',
+    tag: 'Module 04 · Control Builder · 38 min',
+    chapters: [
+      { n:'01', t:'Control Builder interface tour', d:'04:00' },
+      { n:'02', t:'Creating a new control module', d:'05:10' },
+      { n:'03', t:'Adding PID function block', d:'06:00' },
+      { n:'04', t:'PID tuning parameters — Kp, Ki, Kd', d:'07:30' },
+      { n:'05', t:'Cascade and feedforward control', d:'08:20' },
+      { n:'06', t:'Deploying strategy to C300', d:'04:00' },
+      { n:'07', t:'Online monitoring and adjustments', d:'03:00' },
+    ]
+  },
+  v4: {
+    title: 'Alarm Configuration & Dynamic Suppression',
+    tag: 'Module 05 · Alarm Management · 29 min',
+    chapters: [
+      { n:'01', t:'Alarm philosophy and groups', d:'05:00' },
+      { n:'02', t:'Configuring alarm priorities', d:'06:00' },
+      { n:'03', t:'Dynamic Alarm Suppression setup', d:'07:10' },
+      { n:'04', t:'Alarm Tracker — filtering and trending', d:'06:00' },
+      { n:'05', t:'Event and message summary configuration', d:'04:45' },
+    ]
+  },
+  v5: {
+    title: 'FTE Network Design & Redundancy Configuration',
+    tag: 'Module 06 · FTE Networking · 41 min',
+    chapters: [
+      { n:'01', t:'FTE architecture principles', d:'05:00' },
+      { n:'02', t:'Planning dual-switch topology', d:'06:30' },
+      { n:'03', t:'Configuring FTE in Config Studio', d:'08:00' },
+      { n:'04', t:'FTE View — health and topology display', d:'07:00' },
+      { n:'05', t:'Redundancy switchover testing', d:'07:30' },
+      { n:'06', t:'Troubleshooting FTE faults', d:'04:00' },
+      { n:'07', t:'Best practices and documentation', d:'03:00' },
+    ]
+  },
+  v6: {
+    title: 'Building Process Graphics & Operator Displays',
+    tag: 'Module 07 · HMIWeb Design · 52 min',
+    chapters: [
+      { n:'01', t:'HMIWeb design principles', d:'05:30' },
+      { n:'02', t:'Creating a new display', d:'06:00' },
+      { n:'03', t:'Adding process equipment symbols', d:'08:00' },
+      { n:'04', t:'Binding data points to graphics', d:'07:30' },
+      { n:'05', t:'Trend display configuration', d:'06:00' },
+      { n:'06', t:'Faceplate design and navigation', d:'08:00' },
+      { n:'07', t:'Alarm summary integration', d:'06:00' },
+      { n:'08', t:'Display validation and testing', d:'03:00' },
+      { n:'09', t:'Deployment and publishing', d:'02:00' },
+    ]
+  }
+};
+
+function openModal(id) {
+  const v = videos[id];
+  document.getElementById('modalTitle').textContent = v.title;
+  document.getElementById('modalTag').textContent = v.tag;
+  document.getElementById('modalChapters').innerHTML = v.chapters.map(c => `
+    <div class="chapter-item">
+      <span class="chapter-num">${c.n}</span>
+      <span class="chapter-title">${c.t}</span>
+      <span class="chapter-time">${c.d}</span>
+    </div>`).join('');
+  document.getElementById('videoModal').classList.add('open');
+  animateModalWave();
+}
+
+function animateModalWave() {
+  const pts = [];
+  for (let x = 0; x <= 700; x += 10) {
+    const y = 130 + Math.sin(x * 0.02) * 30 * Math.sin(x * 0.005);
+    pts.push(x + ',' + y);
+  }
+  document.getElementById('modalWave').setAttribute('points', pts.join(' '));
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('videoModal')) {
+    document.getElementById('videoModal').classList.remove('open');
+  }
+}
+
+function downloadPPT(name) {
+  const labels = {
+    intro: 'DCS_Fundamentals_Experion_Architecture.pptx',
+    config: 'Configuration_Studio_Complete_Guide.pptx',
+    c300: 'C300_Controller_Hardware_Configuration.pptx',
+    alarm: 'Alarm_Management_Event_Subsystem.pptx',
+    fte: 'FTE_Networking_Redundancy.pptx',
+    hmi: 'HMIWeb_Display_Design.pptx'
+  };
+  alert('Download: ' + (labels[name] || name + '.pptx') + '\n\nIn production, this would download the presentation file from the training portal.');
+}
+
+// Animate waveform in modal periodically
+setInterval(() => {
+  if (document.getElementById('videoModal').classList.contains('open')) {
+    const pts = [];
+    const t = Date.now() * 0.001;
+    for (let x = 0; x <= 700; x += 8) {
+      const y = 130 + Math.sin(x * 0.018 + t) * 25 + Math.sin(x * 0.008 + t * 0.5) * 15;
+      pts.push(x + ',' + Math.round(y));
+    }
+    const el = document.getElementById('modalWave');
+    if (el) el.setAttribute('points', pts.join(' '));
+  }
+}, 60);
+
+// Keyboard close modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('videoModal').classList.remove('open');
+});
+</script>
+</body>
+</html>
